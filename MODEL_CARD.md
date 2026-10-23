@@ -14,7 +14,7 @@ The approach is not a single fixed model. It is a framework for selecting and re
 
 ## 2. Model Description
 
-**Input.** For each function, the data are the observations collected so far: an array of inputs X with one row per query and one column per dimension (2 to 8, each scaled to [0, 1]), and a vector y of scalar outputs. Each function started with 10 to 40 initial observations and gained one per weekly round (23 to 53 by round 13). The data are in [`data/`](data/) and described in [`DATASHEET.md`](DATASHEET.md).
+**Input.** For each function, the data are the observations collected so far: an array of inputs X with one row per query and one column per dimension (2 to 8, each scaled to [0, 1]), and a vector y of scalar outputs. Each function started with 10 to 40 initial observations and gained one per round (23 to 53 by round 13). The data are in [`data/`](data/) and described in [`DATASHEET.md`](DATASHEET.md).
 
 **Output.** One new query per function per round: a point in [0, 1]^d to evaluate next, submitted as hyphen-separated values to six decimal places. The surrogate models also produce predicted means and uncertainties used to rank candidates.
 
@@ -29,9 +29,9 @@ The approach is not a single fixed model. It is a framework for selecting and re
 | F5 | Raw and log1p GPs (Matérn 5/2, ARD) with a conditional local search |
 | F6 | GP, then TuRBO-1 (Matérn 5/2 with fitted noise), with a walk-forward calibration check |
 | F7 | Raw and log GPs, then TuRBO-1 on GPyTorch (Matérn 5/2, ARD), with quadratic interpolation |
-| F8 | GP and neural-network consensus search (weeks 1 to 5), then ordinary least-squares quadratic regression with an analytic optimum |
+| F8 | GP and neural-network consensus search (rounds 1 to 5), then ordinary least-squares quadratic regression with an analytic optimum |
 
-The common acquisition functions are expected improvement (EI), probability of improvement (PI), upper confidence bound (UCB) and posterior mean. Final queries were chosen by the analyst from these rankings, not by an automatic rule.
+An ensemble approach was generally used: several surrogate models and acquisition functions were run side by side and the query was chosen where they agreed. The common acquisition functions are expected improvement (EI), probability of improvement (PI), upper confidence bound (UCB) and posterior mean. Final queries were chosen by the analyst from these rankings, not by an automatic rule.
 
 ## 3. Intended Use
 

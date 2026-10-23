@@ -22,8 +22,6 @@ env/
 .vscode/
 .idea/
 
-# Presentation
-capstone_presentation.pdf
 
 # Course templates
 templates/

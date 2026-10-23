@@ -30,7 +30,7 @@ Each function has a different dimensionality:
 | F7 | 6 | 30 | 43 |
 | F8 | 8 | 40 | 53 |
 
-The initial observations were provided by the programme. Additional observations were generated through successive weekly submissions. All input variables are bounded between 0 and 1, with coordinates specified to six decimal places.
+The initial observations were provided by the programme. Additional observations were generated through successive submissions, one per round. All input variables are bounded between 0 and 1, with coordinates specified to six decimal places.
 
 ### Data format
 The original data is stored in NumPy files, with subsequent queries and results recorded in text and JSON formats. These were subsequently consolidated into a harmonised CSV dataset containing the function identifier, round, input coordinates and observed output. This provides a consistent dataset for modelling and analysis while preserving the original observations separately.
@@ -43,19 +43,20 @@ Some functions also demonstrated unusual characteristics, including extremely sm
 ## 3. Collection Process
 
 ### Query generation
-The approach evolved considerably over the 13 weekly rounds, as follows.
+The approach evolved considerably over the 13 rounds, as follows.
 
 - Initially, query selection was relatively heuristic during the learning phase. This relied on examining observations, identifying patterns and selecting promising coordinates.
 - Subsequently, GP surrogate models and Bayesian optimisation techniques were introduced to estimate the underlying functions and identify candidate queries.
 - As more observations became available, the approach became increasingly function-specific.
 - Rather than applying a single GP configuration to every function, the methodology expanded to include comparisons of kernels, hyperparameters, alternative surrogate models and acquisition strategies.
 - Out-of-sample diagnostics, including leave-one-out cross-validation (LOOCV), were increasingly used to assess model reliability.
+- An ensemble approach was generally used: several surrogate models and acquisition functions were compared side by side and the query was chosen where they agreed.
 - Later rounds added trust-region methods (TuRBO), neural-network cross-checks, calibration checks and, for one function, regression.
 - LLMs were used selectively to assist with coding, interpreting diagnostics, comparing modelling approaches and challenging recommendations.
 - However, final query selection remained a judgement based on the observed data and the available evidence.
 
 ### Time frame
-The dataset was developed over 13 successive weekly rounds of the capstone challenge (rounds 1 to 13, after the initial observations in round 0), with one additional query permitted per function in each round.
+The dataset was developed over 13 successive rounds of the capstone challenge (rounds 1 to 13, after the initial observations in round 0), with one additional query permitted per function in each round.
 
 ## 4. Preprocessing and Uses
 
@@ -137,7 +138,7 @@ Each function behaved differently, so the questions below are answered for each 
 ### Function 6: cake recipe score (5D)
 
 - **Overview.** A recipe score combining flavour, consistency, calories, waste and cost, described as negative by design. Five inputs, 20 initial points. Outputs run from −2.57 to +0.0060, so a positive value did occur, which the description did not anticipate.
-- **Nature of the data.** X (20, 5) and y (20,), growing to 33. The function is noisy (the fitted noise standard deviation was about 0.05 to 0.11). The best came in round 11 (+0.0060), followed by −0.348 in round 12 and −0.061 in round 13. Queries concentrated around a shallow optimum region.
+- **Nature of the data.** X (20, 5) and y (20,), growing to 33. The function is noisy (the fitted noise standard deviation was about 0.05). The best came in round 11 (+0.0060), followed by −0.348 in round 12 and −0.061 in round 13. Queries concentrated around a shallow optimum region.
 - **Strategy.** A Gaussian process early on, then TuRBO-1 (Matérn 5/2 with a fitted noise term) with a trust region around the incumbent, then in the final round a walk-forward calibration check and a vote across four GP specifications between a conservative and a more exploratory candidate. Noise and few observations favoured conservative local refinement. After round 12, the GP was constrained and compared against alternatives.
 - **Preprocessing and modelling.** Standardised outputs; length scales bounded to 0.05 to 2.0 and noise to 0.001 to 1.0; no transformation; no observations removed.
 - **Learning.** The walk-forward check refits on earlier rounds to predict each round. Standardised errors reached +4.0 (round 9) and −5.1 (round 12), showing the model was overconfident. Round 12 was the most informative because it revealed that. Calibrating uncertainty earlier would have helped.
@@ -149,14 +150,14 @@ Each function behaved differently, so the questions below are answered for each 
 - **Nature of the data.** X (30, 6) and y (30,), growing to 43. Progress was steady: 2.31 in round 1 to 3.283 by round 13, with a reconstructed trust region that widened from 0.2 to 0.5. No input was repeated; the fitted noise level was very small (standard deviation about 0.005), so the function looks nearly deterministic and smooth.
 - **Strategy.** Raw and log GPs, then TuRBO-1 (a GPyTorch Matérn 5/2 model with one length scale per input), with a gradient-boosted-tree challenger rejected in round 11 and a final quadratic interpolation through rounds 10 to 12. Smooth, steady improvement in six dimensions suited local trust regions. Exploitation dominated, with an exploratory draw reported alongside.
 - **Preprocessing and modelling.** Standardised outputs; inputs in [0, 1]; computations in float32 on Apple MPS or CUDA when available; no observations removed.
-- **Learning.** Rounds 6 to 9, when the trust region widened, gave the largest gains. By rounds 11 to 13 returns were tiny (3.2831 to 3.2833). Running diagnostics earlier on whether the surface was still improving would have helped.
+- **Learning.** Rounds 6 to 9, when the trust region widened, gave the largest gains. Gains in rounds 11 to 13 were tiny (3.2831 in round 11, 3.2833 in round 13). Running diagnostics earlier on whether the surface was still improving would have helped.
 - **Results.** Best output **3.28328** in round 13 at `0.230117-0.105291-0.483789-0.263529-0.313756-0.650578`. Confidence is **low to moderate**: the value was still creeping up and only one local region was explored.
 
 ### Function 8: eight-dimensional black box (8D)
 
 - **Overview.** An eight-hyperparameter black-box function. Eight inputs, 40 initial points. Outputs run from 5.59 to 10.
-- **Nature of the data.** X (40, 8) and y (40,), growing to 53. Weeks 1 to 5 used a Gaussian-process search and reached 9.955. Round 6 gave the maximum, 10.0. Rounds 7 to 9 were small deliberate steps around it and rounds 10 to 13 repeated it. Five evaluations at the optimum returned identical values, so the function is deterministic. It is smooth, unimodal and fits a separable quadratic.
-- **Strategy.** A Gaussian-process and neural-network consensus search in weeks 1 to 5, then in week 6 a switch to ordinary least-squares quadratic regression (17 coefficients) with an analytic optimum. Gains from search had slowed to 0.155 over five rounds, so the problem was treated as regression instead.
+- **Nature of the data.** X (40, 8) and y (40,), growing to 53. Rounds 1 to 5 used a Gaussian-process search and reached 9.955. Round 6 gave the maximum, 10.0. Rounds 7 to 9 were small deliberate steps around it and rounds 10 to 13 repeated it. Five evaluations at the optimum returned identical values, so the function is deterministic. It is smooth, unimodal and fits a separable quadratic.
+- **Strategy.** A Gaussian-process and neural-network consensus search in rounds 1 to 5, then in round 6 a switch to ordinary least-squares quadratic regression (17 coefficients) with an analytic optimum. Gains from search had slowed to 0.155 over five rounds, so the problem was treated as regression instead.
 - **Preprocessing and modelling.** Search stage: standardised inputs, a Yeo-Johnson target and a noise term chosen by leave-one-out cross-validation (leave-one-out R² about 0.99 in the round-5 workbook). Regression stage: none required.
 - **Learning.** The regression fits every observation to machine precision (RMSE about 1.7 × 10⁻¹⁵), with exact round-number coefficients. A retrospective analysis suggests the structure could have been identified from the 40 initial rows alone. Running low-order structure checks before choosing a surrogate would have saved the search rounds.
 - **Results.** Best output **10.000000** in round 6 at `0.100000-0.150000-0.130000-0.150000-0.800000-0.500000-0.200000-0.600000`. Confidence is **very high**: exact fit, correct forecasts of the confirmation rounds, symmetric probe results and identical replicates. The caveat is that this holds within the sampled domain. The observed maximum of 10 is on a different scale from the 0 to 1 accuracy described in the brief.
@@ -164,7 +165,7 @@ Each function behaved differently, so the questions below are answered for each 
 ## 6. Distribution and Maintenance
 
 ### Dataset
-The dataset is held in the project's GitHub repository (`postulix/bbo_final`), alongside the notebooks and documentation. The data and documentation are released under CC BY 4.0, so reuse requires only attribution; the code is under the MIT licence (see [`LICENSE`](LICENSE)). The black-box functions and their descriptions come from the Imperial College Business School Executive Education programme (with Emeritus), and the repository is shared for educational and portfolio use.
+The dataset is held in the project's GitHub repository (`postulix/imperial_bbo_2026`), alongside the notebooks and documentation. The data and documentation are released under CC BY 4.0, so reuse requires only attribution; the code is under the MIT licence (see [`LICENSE`](LICENSE)). The black-box functions and their descriptions come from the Imperial College Business School Executive Education programme (with Emeritus), and the repository is shared for educational and portfolio use.
 
 The original observations are preserved separately from subsequent submissions, while a consolidated CSV provides the working dataset. The project also contains Jupyter notebooks and supporting Python code used for modelling and optimisation.
 
@@ -177,7 +178,7 @@ The dataset is maintained by the project author, who incorporates new observatio
 ## 7. Ethical, practical and general considerations
 
 ### Relation to real-world applications
-The tasks mirror problems where each evaluation is expensive: contamination mapping (F1), drug-combination testing (F3), chemical process tuning (F5) and machine-learning hyperparameter tuning (F7). The weekly query limit stands in for the cost of a real experiment.
+The tasks mirror problems where each evaluation is expensive: contamination mapping (F1), drug-combination testing (F3), chemical process tuning (F5) and machine-learning hyperparameter tuning (F7). The per-round query limit stands in for the cost of a real experiment.
 
 ### Limitations of the synthetic functions
 The functions are synthetic, so they are cleaner than real systems: there is no drift over time, no safety limit on inputs, and no competing objectives. Some are exactly solvable (F8), which real systems rarely are. The descriptions also did not always match the observed scales (F6 is described as negative but reached a positive value; F7 and F8 exceed the 0 to 1 range of an accuracy score), so documentation of a real problem should be checked against its data.
