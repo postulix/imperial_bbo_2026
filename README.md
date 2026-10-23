@@ -6,14 +6,6 @@
 
 <p><b>Maximising eight unknown functions, from 2 to 8 dimensions, with one query per function per round.</b></p>
 
-<a href="assets/capstone_presentation.pdf">
-  <img src="assets/badge.png" alt="Imperial Executive Education: Professional Certificate in Machine Learning and Artificial Intelligence, Exemplary Assignment" width="170">
-</a>
-
-<sub><a href="assets/capstone_presentation.pdf">View the capstone presentation</a></sub>
-
-<br>
-
 ![Python](https://img.shields.io/badge/Python-3.13-3776AB?logo=python&logoColor=white)
 ![Jupyter](https://img.shields.io/badge/Jupyter-Notebooks-F37626?logo=jupyter&logoColor=white)
 ![scikit-learn](https://img.shields.io/badge/scikit--learn-Gaussian%20processes-F7931E?logo=scikitlearn&logoColor=white)
@@ -88,10 +80,20 @@ The final query for each function was chosen by hand from the options its notebo
 
 *Start* is the best of the initial observations; *Final best* is the best `y` found by round 13.
 
-### Functions believed to be maximised
+### Highlights
+
+**Two functions appear to have reached their maximum.**
 
 - **Function 8 was recovered exactly.** A separable quadratic with 17 coefficients reproduces every observation to machine precision. Its maximum of 10 was reached in round 6, confirmed by diagnostic rounds around it, and returned exactly in rounds 10 to 13. A retrospective analysis suggests the same structure could have been identified from the initial design alone.
 - **Function 5's optimum sits on the boundary** of the input range, at (1, 1, 1, 1), with a yield of 8,662.5, nearly double the best seen before round 6. The corner was reproduced exactly in rounds 6 and 10 to 13.
+
+**Capstone presentation.** The project was awarded an *Exemplary Assignment* rating. The presentation is [here](assets/capstone_presentation.pdf).
+
+<p align="center">
+  <a href="assets/capstone_presentation.pdf">
+    <img src="assets/badge.png" alt="Imperial Executive Education: Professional Certificate in Machine Learning and Artificial Intelligence, Exemplary Assignment" width="170">
+  </a>
+</p>
 
 ## Dashboard
 
