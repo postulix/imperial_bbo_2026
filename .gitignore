@@ -1,0 +1,29 @@
+# macOS
+.DS_Store
+
+# Private notes
+HISTORY_PRIVATE.md
+
+# Jupyter
+.ipynb_checkpoints/
+*-checkpoint.ipynb
+notebook_backup/
+scratchpad.ipynb
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+env/
+
+# Editors / IDEs
+.vscode/
+.idea/
+
+# Presentation
+capstone_presentation.pdf
+
+# Course templates
+templates/
