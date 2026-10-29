@@ -54,15 +54,15 @@ The following were the main tools used across the functions. More detail for eac
 
 <p align="center"><img src="assets/approach_flow.png" alt="Approach: initial data and results so far, fit surrogate models, score candidates, compare models and diagnostics, choose and submit one query, new result arrives, repeat" width="100%"></p>
 
-- **An ensemble approach was generally used.** Several surrogate models (Gaussian processes with different kernels and target transformations, small neural-network ensembles, trust-region models) and several acquisition functions were run side by side, and model agreement was considered when selecting the final query.
-- **Gaussian processes** with ARD kernels (RBF and Matérn), with target transformations (Yeo-Johnson, log, signed-log) where the response spanned orders of magnitude.
-- **Acquisition functions** (posterior mean, EI, PI, UCB) compared against one another, not trusted individually.
-- **TuRBO-style trust regions**, small **neural-network ensembles** and **consensus rankings** as challengers to a single GP.
+- **An ensemble approach was generally used:** Several surrogate models (Gaussian processes with different kernels and target transformations, small neural-network ensembles, trust-region models) and several acquisition functions were run side by side, and model agreement was considered when selecting the final query.
+- **Gaussian processes:** with ARD kernels (RBF and Matérn), with target transformations (Yeo-Johnson, log, signed-log) where the response spanned orders of magnitude.
+- **Acquisition functions:** (posterior mean, EI, PI, UCB) compared against one another, not trusted individually.
+- **TuRBO-style trust regions:**, small **neural-network ensembles** and **consensus rankings** as challengers to a single GP.
 - **Hyperparameter optimisation:** kernel length scales, noise terms and target transformations were fitted or chosen by cross-validation inside each function's notebook, with the rationale for these choices documented in each function’s notebook (see [`notebooks/`](notebooks/)).
 - **Validation before trust:** leave-one-out cross-validation, conditional profiles and walk-forward checks.
-- **How it varied by function.** Every function began with a GP and acquisition search. F1 moved to a local GP on a signed-log target, F4 added a neural network and a trust region, and F6 and F7 moved to TuRBO trust regions. F8 started with GP and neural-network search (rounds 1 to 5) and then switched to quadratic regression from round 6, which identified the function exactly.
+- **How it varied by function:** Every function began with a GP and acquisition search. F1 moved to a local GP on a signed-log target, F4 added a neural network and a trust region, and F6 and F7 moved to TuRBO trust regions. F8 started with GP and neural-network search (rounds 1 to 5) and then switched to quadratic regression from round 6, which identified the function exactly.
 
-Throughout most of the challenge, the final query for each function was selected manually after reviewing candidate solutions and diagnostics generated in each notebook. In the final rounds, attempts were made to automate this decision-making process by integrating candidate evaluation and selection into a single pipeline. Errors in the automated workflow led to unreliable recommendations and, in some cases, poorer results. The attempt showed that consolidating the process did not replace the function-specific checks and manual review used in earlier rounds.
+Throughout most of the challenge, the final query for each function was selected manually after reviewing candidate solutions and diagnostics generated in each notebook. In the final rounds, attempts were made to automate this decision-making process by integrating candidate evaluation and selection into a single pipeline. Errors in the automated workflow led to unreliable recommendations and, in some cases, poorer results.
 
 Changes in approach by round and function are outlined in [`HISTORY.md`](HISTORY.md).
 
@@ -85,8 +85,8 @@ Changes in approach by round and function are outlined in [`HISTORY.md`](HISTORY
 
 **Two functions produced particularly strong results.**
 
-- **Function 8 was fitted to machine precision.** A separable quadratic with 17 coefficients reproduced every observation to machine precision. The fitted model identified a maximum of 10, reached in round 6 and supported by subsequent evaluations near the optimum; the same value was returned in rounds 10 to 13. A retrospective analysis showed that the same model could have been identified from the initial design alone.
-- **Function 5’s best observed result was on the boundary** of the input range, at (1, 1, 1, 1), with a yield of 8,662.5, nearly double the best seen before round 6. The corner returned the same result in rounds 6 and 10 to 13, although global optimality was not established.
+- **Function 8 was effectively maximised.** A separable quadratic with 17 coefficients reproduced every observation to machine precision. The fitted model identified a maximum of 10, reached in round 6 and supported by subsequent evaluations near the optimum; the same value was returned in rounds 10 to 13. A retrospective analysis showed that the same model could have been identified from the initial design alone.
+- **Function 5’s seems to be effectively maximised:** of the input range, at (1, 1, 1, 1), with a yield of 8,662.5, nearly double the best seen before round 6. The corner returned the same result in rounds 6 and 10 to 13, although global optimality was not established.
 
 **Capstone presentation.** The project was awarded an *Exemplary Assignment* rating. The [capstone presentation](assets/capstone_presentation.pdf) is also available.
 
@@ -172,11 +172,11 @@ Appending new rows to `data/data.csv` flows through to every notebook on re-run,
 <summary><b>What was this challenge about?</b></summary>
 <br>
 
-This capstone project mimicked a Black-Box Bayesian optimisation-style competition: find the maximum of eight unknown black-box functions. The equations and shapes of the functions were hidden. Only a small set of initial data and the ability to make informed queries were available.
+This capstone project was a Black-Box Bayesian optimisation-style competition: find the maximum of eight unknown black-box functions. The equations and shapes of the functions were hidden. Only a small set of initial data and the ability to make informed queries were available.
 
 Each function simulates a real-world task, described below and at the beginning of each notebook, where evaluations are expensive or limited. Perfect solutions were not expected; the aim was to apply sound search strategies and reflect on them as the data grew.
 
-The eight functions are synthetic black boxes: unknown mathematical functions that accept inputs and return a single output. Every function is a **maximisation** problem, with increasing dimensionality (2D to 8D), and each began with a small set of known (x, y) observations.
+The eight functions are synthetic black boxes: unknown mathematical functions that accept inputs and return a single output. Every function is a **maximisation** problem, with varying dimensionality (2D to 8D), and each began with a set of known (x, y) observations of a differing number of observations.
 
 In each round:
 
