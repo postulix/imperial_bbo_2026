@@ -3,7 +3,6 @@
 <img src="assets/Imperial_Business_School.svg" alt="Imperial College Business School" width="320">
 
 <h1>Black-Box Optimisation Capstone: October 2026</h1>
-<h2>October 2026</h2>
 
 <p><b>Maximising eight unknown functions, from 2 to 8 dimensions, with one query per function per round.</b></p>
 
