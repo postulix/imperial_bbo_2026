@@ -2,7 +2,8 @@
 
 <img src="assets/Imperial_Business_School.svg" alt="Imperial College Business School" width="320">
 
-<h1>Black-Box Optimisation Capstone</h1>
+<h1>Black-Box Optimisation Capstone: October 2026</h1>
+<h2>October 2026</h2>
 
 <p><b>Maximising eight unknown functions, from 2 to 8 dimensions, with one query per function per round.</b></p>
 
@@ -37,33 +38,33 @@
 
 ---
 
-## In plain terms
-
-This project is about finding the best answer to eight problems when you cannot see how they work and can only ask a few questions. In each round I could submit one guess per problem and got one score back. Over 13 rounds I used the scores so far to decide where to look next, aiming for the highest score with as few guesses as possible.
-
-A useful way to think about it is investing with incomplete information and a limited budget. Every guess has an opportunity cost, so each round is a choice between investigating a new opportunity and concentrating on the one that already looks best.
-
 ## Overview
 
-In each of 13 rounds, one new input could be submitted to each of eight unknown black-box functions, and one new output came back. The equations were hidden and evaluations were limited. The functions ranged from a near-zero signal spanning more than 100 orders of magnitude, to noisy low-dimensional surfaces, to an eight-dimensional function with a hidden exact structure. The task was to find each function's maximum with as few queries as possible, and to reason about every query along the way.
+The challenge involved maximising the outputs of eight black-box functions whose underlying equations were unknown. Across 13 rounds, one new set of inputs could be submitted to each function, with a single output returned for each evaluation. With a limited evaluation budget, every query mattered.
 
-This repository holds the final pipeline: one dataset, one notebook per function, a progress dashboard, and the documentation of how the search evolved.
+The functions presented different challenges, ranging from a near-zero signal spanning more than 100 orders of magnitude, to noisy low-dimensional surfaces, to an eight-dimensional function with a hidden exact mathematical structure. The objective was to find the highest possible output for each function within the available evaluation budget, using the results to inform subsequent queries.
+
+For non-practitioners, A useful way to think about it is investing with incomplete information and a limited budget. Every guess has an opportunity cost, so each round involved a choice between investigating a new opportunity and concentrating on the one that already looked best.
+
+This repository contains the final optimisation pipeline: a consolidated dataset, a notebook for each function, a progress dashboard, and documentation of the methods used, the results obtained, and how the approach evolved throughout the challenge.
 
 ## General approach
 
-These are the main tools used across the functions. More detail for each function is in the results below, in the notebooks and in [`HISTORY.md`](HISTORY.md).
+The following were the main tools used across the functions. More detail for each function is provided in the results below, the notebooks and [`HISTORY.md`](HISTORY.md).
 
 <p align="center"><img src="assets/approach_flow.png" alt="Approach: initial data and results so far, fit surrogate models, score candidates, compare models and diagnostics, choose and submit one query, new result arrives, repeat" width="100%"></p>
 
-- **An ensemble approach was generally used.** Several surrogate models (Gaussian processes with different kernels and target transformations, small neural-network ensembles, trust-region models) and several acquisition functions were run side by side, and the final query was chosen where they agreed.
+- **An ensemble approach was generally used.** Several surrogate models (Gaussian processes with different kernels and target transformations, small neural-network ensembles, trust-region models) and several acquisition functions were run side by side, and model agreement was considered when selecting the final query.
 - **Gaussian processes** with ARD kernels (RBF and Matérn), with target transformations (Yeo-Johnson, log, signed-log) where the response spanned orders of magnitude.
 - **Acquisition functions** (posterior mean, EI, PI, UCB) compared against one another, not trusted individually.
 - **TuRBO-style trust regions**, small **neural-network ensembles** and **consensus rankings** as challengers to a single GP.
-- **Hyperparameter optimisation:** kernel length scales, noise terms and target transformations were fitted or chosen by cross-validation inside each function's notebook, which explains the choices made for that function (see [`notebooks/`](notebooks/)).
+- **Hyperparameter optimisation:** kernel length scales, noise terms and target transformations were fitted or chosen by cross-validation inside each function's notebook, with the rationale for these choices documented in each function’s notebook (see [`notebooks/`](notebooks/)).
 - **Validation before trust:** leave-one-out cross-validation, conditional profiles and walk-forward checks.
 - **How it varied by function.** Every function began with a GP and acquisition search. F1 moved to a local GP on a signed-log target, F4 added a neural network and a trust region, and F6 and F7 moved to TuRBO trust regions. F8 started with GP and neural-network search (rounds 1 to 5) and then switched to quadratic regression from round 6, which identified the function exactly.
 
-The final query for each function was chosen by hand from the options its notebook prints. How the approach changed round by round, function by function, is told in [`HISTORY.md`](HISTORY.md).
+Throughout most of the challenge, the final query for each function was selected manually after reviewing candidate solutions and diagnostics generated in each notebook. In the final rounds, attempts were made to automate this decision-making process by integrating candidate evaluation and selection into a single pipeline. Errors in the automated workflow led to unreliable recommendations and, in some cases, poorer results. The attempt showed that consolidating the process did not replace the function-specific checks and manual review used in earlier rounds.
+
+Changes in approach by round and function are outlined in [`HISTORY.md`](HISTORY.md).
 
 ## Results
 
@@ -82,12 +83,12 @@ The final query for each function was chosen by hand from the options its notebo
 
 ### Highlights
 
-**Two functions appear to have reached their maximum.**
+**Two functions produced particularly strong results.**
 
-- **Function 8 was recovered exactly.** A separable quadratic with 17 coefficients reproduces every observation to machine precision. Its maximum of 10 was reached in round 6, confirmed by diagnostic rounds around it, and returned exactly in rounds 10 to 13. A retrospective analysis suggests the same structure could have been identified from the initial design alone.
-- **Function 5's optimum sits on the boundary** of the input range, at (1, 1, 1, 1), with a yield of 8,662.5, nearly double the best seen before round 6. The corner was reproduced exactly in rounds 6 and 10 to 13.
+- **Function 8 was fitted to machine precision.** A separable quadratic with 17 coefficients reproduced every observation to machine precision. The fitted model identified a maximum of 10, reached in round 6 and supported by subsequent evaluations near the optimum; the same value was returned in rounds 10 to 13. A retrospective analysis showed that the same model could have been identified from the initial design alone.
+- **Function 5’s best observed result was on the boundary** of the input range, at (1, 1, 1, 1), with a yield of 8,662.5, nearly double the best seen before round 6. The corner returned the same result in rounds 6 and 10 to 13, although global optimality was not established.
 
-**Capstone presentation.** The project was awarded an *Exemplary Assignment* rating. The presentation is [here](assets/capstone_presentation.pdf).
+**Capstone presentation.** The project was awarded an *Exemplary Assignment* rating. The [capstone presentation](assets/capstone_presentation.pdf) is also available.
 
 <p align="center">
   <a href="assets/capstone_presentation.pdf">
@@ -112,13 +113,14 @@ Every function's progress, round by round: the incumbent is the best `y` found s
 </details>
 
 > [!NOTE]
-> GitHub shows `.html` files as source, so the dashboard badge above opens it through an HTML previewer. You can also download `dashboard.html` and open it in any browser. It is self-contained and needs no internet connection. After new data is added, regenerate it with `python build_dashboard.py`.
+> The dashboard opens through an HTML previewer. You can also download `dashboard.html` and open it in any browser. To rebuild it after adding data, run `python build_dashboard.py`.
 
 ## Repository structure
 
 ```
 imperial_bbo_2026/
 ├── README.md
+├── requirements.txt           # Python dependencies for the notebooks and runner
 ├── HISTORY.md                 # how the search progressed, function by function
 ├── DATASHEET.md               # documentation of the dataset
 ├── MODEL_CARD.md              # documentation of the optimisation approach
@@ -140,7 +142,7 @@ imperial_bbo_2026/
 ```bash
 git clone https://github.com/postulix/imperial_bbo_2026.git
 cd imperial_bbo_2026
-pip install numpy pandas scipy scikit-learn torch gpytorch jupyter nbformat nbclient
+pip install -r requirements.txt
 cd notebooks
 jupyter lab                    # open any of f1.ipynb ... f8.ipynb
 ```
@@ -159,7 +161,7 @@ Appending new rows to `data/data.csv` flows through to every notebook on re-run,
 
 | Document | What it covers |
 |:--|:--|
-| [`HISTORY.md`](HISTORY.md) | A narrative of how each function's search progressed, citing the pivotal rounds |
+| [`HISTORY.md`](HISTORY.md) | How each function's search progressed, citing pivotal rounds |
 | [`DATASHEET.md`](DATASHEET.md) | The dataset: motivation, composition, how it was collected, preprocessing and known gaps |
 | [`MODEL_CARD.md`](MODEL_CARD.md) | The optimisation approach: strategy, performance across the functions, assumptions and limitations |
 | [`dashboard.html`](dashboard.html) | Charts of every function's progress, rebuilt from the data |
@@ -170,7 +172,7 @@ Appending new rows to `data/data.csv` flows through to every notebook on re-run,
 <summary><b>What was this challenge about?</b></summary>
 <br>
 
-This capstone project mimicked a Bayesian optimisation-style competition: find the maximum of eight unknown black-box functions. The equations and shapes of the functions were hidden. Only a small set of initial data and the ability to make informed queries were available.
+This capstone project mimicked a Black-Box Bayesian optimisation-style competition: find the maximum of eight unknown black-box functions. The equations and shapes of the functions were hidden. Only a small set of initial data and the ability to make informed queries were available.
 
 Each function simulates a real-world task, described below and at the beginning of each notebook, where evaluations are expensive or limited. Perfect solutions were not expected; the aim was to apply sound search strategies and reflect on them as the data grew.
 
@@ -185,7 +187,7 @@ In each round:
 5. The dataset was updated and the strategy revised.
 6. Each round was followed by a reflection on the method used and why, whether the query was exploration or exploitation, what the latest result showed, and the strategy for the next round.
 
-The process ran for 13 rounds, so each function ends with its initial observations plus 13 queried points. Any ML method could be used to decide each query. This repository uses GP-based Bayesian optimisation throughout, with TuRBO trust regions, neural-network cross-checks and, for Function 8, regression. The task did not require submitting an optimiser, building a full optimisation model from scratch, or finding the global maximum of every function.
+The process ran for 13 rounds, so each function ends with its initial observations plus 13 queried points. Any ML method could be used to decide each query. The search used Gaussian-process-based Bayesian optimisation for most functions, with TuRBO trust regions, neural-network cross-checks and, for Function 8, quadratic regression. The task did not require submitting an optimiser, building a full optimisation model from scratch, or finding the global maximum of every function.
 
 </details>
 
@@ -211,6 +213,8 @@ Observations per function: initial (round 0) and final (after 13 rounds).
 <details>
 <summary><b>Function descriptions</b></summary>
 <br>
+The descriptions below are reproduced from the original challenge materials. They are illustrative and do not necessarily describe the observed output ranges or final results.
+
 
 **Function 1:** Detect likely contamination sources in a two-dimensional area, such as a radiation field, where only proximity yields a non-zero reading. The system uses Bayesian optimisation to tune detection parameters and reliably identify both strong and weak sources.
 
